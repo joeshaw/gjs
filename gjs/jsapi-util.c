@@ -1593,3 +1593,50 @@ gjs_maybe_gc (JSContext *context)
     }
 #endif
 }
+
+/**
+ * gjs_get_stack_frame
+ * @context:
+ * @frame_num: a zero-indexed number of stack frames to walk up from
+ * the currently executing frame.  If the value is greater than the
+ * totalnumber of frames, the topmost frame will be returned.
+ * Returns: the #JSStackFrame object of the referenced stack frame.
+ */
+JSStackFrame *
+gjs_get_stack_frame(JSContext *context, int frame_num)
+{
+    JSStackFrame *fp, *fp_iter = NULL;
+    int i = 0;
+
+    do {
+        fp = JS_FrameIterator(context, &fp_iter);
+    } while (fp != NULL && i++ < frame_num);
+
+    return fp;
+}
+
+/**
+ * gjs_get_stack_frame_object
+ * @context:
+ * @fp: A pointer to a JSStackFrame, or #NULL
+ * Returns: a #JSObject containing local objects, function arguments,
+ * etc. for the given stack frame.  If @fp is #NULL, the global object
+ * is returned.
+ */
+JSObject *
+gjs_get_stack_frame_object(JSContext *context, JSStackFrame *fp)
+{
+    JSObject *obj = NULL;
+
+    if (fp != NULL) {
+        obj = JS_GetFrameCallObject(context, fp);
+
+        if (obj == NULL)
+            obj = JS_GetFrameScopeChain(context, fp);
+    }
+
+    if (obj == NULL)
+        obj = JS_GetGlobalObject(context);
+
+    return obj;
+}

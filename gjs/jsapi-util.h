@@ -29,6 +29,7 @@
 #endif
 
 #include <jsapi.h>
+#include <jsdbgapi.h>
 #include <gjs/compat.h>
 #include <glib-object.h>
 
@@ -348,6 +349,18 @@ JSBool      gjs_parse_args                   (JSContext  *context,
                                               uintN      argc,
                                               jsval     *argv,
                                               ...);
+
+void        gjs_format_stack                 (JSContext    *context,
+                                              GString      *buf);
+void        gjs_format_stack_frame           (JSContext    *context,
+                                              JSStackFrame *fp,
+                                              GString      *buf);
+
+JSStackFrame*     gjs_get_stack_frame        (JSContext    *ctx,
+                                              int           frame_num);
+JSObject*         gjs_get_stack_frame_object (JSContext    *ctx,
+                                              JSStackFrame *fp);
+
 
 GjsRootedArray*   gjs_rooted_array_new        (void);
 void              gjs_rooted_array_append     (JSContext        *context,

@@ -24,6 +24,7 @@
 #include <config.h>
 
 #include "context.h"
+#include "debugger.h"
 #include "importer.h"
 #include "jsapi-util.h"
 #include "profiler.h"
@@ -1063,6 +1064,18 @@ gjs_context_define_string_array(GjsContext  *js_context,
     }
 
     return TRUE;
+}
+
+gboolean
+gjs_context_start_debugger(GjsContext *js_context,
+                           guint16 port,
+                           GError **err)
+{
+    g_return_val_if_fail(GJS_IS_CONTEXT(js_context), FALSE);
+    g_return_val_if_fail(js_context->runtime, FALSE);
+    g_return_val_if_fail(port > 0 && port < 65536, FALSE);
+
+    return gjs_debugger_init(js_context->runtime, port, err);
 }
 
 #if GJS_BUILD_TESTS

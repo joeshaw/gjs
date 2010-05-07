@@ -277,6 +277,9 @@ gjs_debug(GjsDebugTopic topic,
     case GJS_DEBUG_BYTE_ARRAY:
         prefix = "JS BYTE ARRAY";
         break;
+    case GJS_DEBUG_DEBUGGER:
+        prefix = "JS DEBUGGER";
+        break;
     }
 
     if (!is_allowed_prefix(prefix))

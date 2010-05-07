@@ -60,7 +60,8 @@ typedef enum {
     GJS_DEBUG_PROPS,
     GJS_DEBUG_SCOPE,
     GJS_DEBUG_HTTP,
-    GJS_DEBUG_BYTE_ARRAY
+    GJS_DEBUG_BYTE_ARRAY,
+    GJS_DEBUG_DEBUGGER
 } GjsDebugTopic;
 
 /* These defines are because we have some pretty expensive and
@@ -118,6 +119,12 @@ typedef enum {
 #define GJS_VERBOSE_ENABLE_DBUS_MARSHAL 0
 #endif
 
+/* Whether to log debugger messages
+ */
+#ifndef GJS_VERBOSE_DEBUGGER
+#define GJS_VERBOSE_DEBUGGER 0
+#endif
+
 #if GJS_VERBOSE_ENABLE_PROPS
 #define gjs_debug_jsprop(topic, format...) \
     do { gjs_debug(topic, format); } while(0)
@@ -165,6 +172,13 @@ typedef enum {
     do { gjs_debug(GJS_DEBUG_DBUS_MARSHAL, format); } while(0)
 #else
 #define gjs_debug_dbus_marshal(format...)
+#endif
+
+#if GJS_VERBOSE_ENABLE_DEBUGGER
+#define gjs_debug_debugger(format...) \
+    do { gjs_debug(GJS_DEBUG_DEBUGGER, format); } while(0)
+#else
+#define gjs_debug_debugger(format...)
 #endif
 
 void gjs_fatal(const char *format,

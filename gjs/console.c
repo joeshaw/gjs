@@ -28,16 +28,60 @@
 
 #include <gjs/gjs.h>
 
+static gboolean parse_debugger_option(const char *option_name,
+                                      const char *value,
+                                      gpointer data,
+                                      GError **error);
+
 static char **include_path = NULL;
 static char *command = NULL;
-static char *js_version= NULL;
+static char *js_version = NULL;
+static gboolean debugger = FALSE;
+static int debugger_port = 5580;
 
 static GOptionEntry entries[] = {
-    { "command", 'c', 0, G_OPTION_ARG_STRING, &command, "Program passed in as a string", "COMMAND" },
-    { "include-path", 'I', 0, G_OPTION_ARG_STRING_ARRAY, &include_path, "Add the directory DIR to the list of directories to search for js files.", "DIR" },
-    { "js-version", 0, 0, G_OPTION_ARG_STRING, &js_version, "JavaScript version (e.g. \"default\", \"1.8\"", "JSVERSION" },
+    { "command", 'c',
+      0, G_OPTION_ARG_STRING, &command,
+      "Program passed in as a string", "COMMAND" },
+
+    { "include-path", 'I',
+      0, G_OPTION_ARG_STRING_ARRAY, &include_path,
+      "Add the directory DIR to the list of directories to search for js files.", "DIR" },
+
+    { "js-version", 0,
+      0, G_OPTION_ARG_STRING, &js_version,
+      "JavaScript version (e.g. \"default\", \"1.8\"", "JSVERSION" },
+
+    { "debugger", 'd',
+      G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_debugger_option,
+      "Starts a debugger instance (by default on port 5580)", "PORT" },
+
     { NULL }
 };
+
+static gboolean
+parse_debugger_option(const char *option_name,
+                      const char *value,
+                      gpointer data,
+                      GError **error)
+{
+    debugger = TRUE;
+    if (value != NULL && *value != '\0') {
+        char *end;
+
+        debugger_port = strtol(value, &end, 0);
+
+        if (*end != '\0') {
+            g_set_error(error,
+                        G_OPTION_ERROR,
+                        G_OPTION_ERROR_BAD_VALUE,
+                        "Invalid port value");
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
 
 int
 main(int argc, char **argv)
@@ -103,6 +147,21 @@ main(int argc, char **argv)
                                          &error)) {
         g_printerr("Failed to defined ARGV: %s", error->message);
         exit(1);
+    }
+
+    if (debugger) {
+        gboolean started;
+        GError *err = NULL;
+
+        started = gjs_context_start_debugger(js_context,
+                                             debugger_port,
+                                             &err);
+
+        if (!started) {
+            if (err != NULL)
+                g_printerr("%s\n", err->message);
+            exit(1);
+        }
     }
 
     /* evaluate the script */

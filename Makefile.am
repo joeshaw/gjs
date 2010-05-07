@@ -33,6 +33,7 @@ nobase_gjs_module_include_HEADERS =	\
 	gjs/native.h
 
 noinst_HEADERS +=		\
+	gjs/debugger.h		\
 	gjs/jsapi-private.h	\
 	gjs/profiler.h		\
 	gjs/unit-test-utils.h	\
@@ -76,6 +77,7 @@ libgjs_la_LIBADD = 		\
 libgjs_la_SOURCES =		\
 	gjs/byteArray.c		\
 	gjs/context.c		\
+	gjs/debugger.c		\
 	gjs/importer.c		\
 	gjs/jsapi-private.cpp	\
 	gjs/jsapi-util.c	\
